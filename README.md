@@ -54,6 +54,55 @@ Default output is `chrome-ec/build/<board>/RW/ec.RW.flat` (what coreboot consume
 
 Generations and board lists: `./build-docker.sh --help`.
 
-## Why a separate repo?
+## Board feature matrix
 
-Firmware lives on many platform branches. Putting build scripts on those branches means duplication or an orphan tools branch. Keeping scripts here and the EC tree as an untracked nested clone avoids that.
+Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
+
+| Board(s) | Branch | Features / fixes |
+|---|---|---|
+| **link** | `firmware-link-2695.B` | - Windows PS/2 keyboard fixes<br>- Fan RPM enable fix<br>- vboot_hash backport |
+| **falco, peppy** | `firmware-falco_peppy-4389.B` | - Windows PS/2 keyboard fixes<br>- ACPI query-next-event mask<br>- Falco quieter fan curve |
+| **wolf** | `firmware-wolf-4389.24.B` | - Windows PS/2 keyboard fixes<br>- ACPI query-next-event mask<br>- Sane fan speeds |
+| **leon** | `firmware-leon-4389.61.B` | - Windows PS/2 keyboard fixes<br>- ACPI query-next-event mask |
+| **banjo, candy, clapper, enguarde, expresso, gnawty, heli, kip, orco, quawks, squawks, sumo, swanky, winky** | per-board `firmware-<board>-5216.*.B` | - Windows PS/2 keyboard fixes |
+| **glimmer** | `firmware-glimmer-5216.198.B` | - Windows PS/2 keyboard fixes<br>- Revert stock battery-update quirks |
+| **ninja** | `firmware-ninja-5216.383.B` | |
+| **buddy** | `firmware-buddy-6301.202.B` | |
+| **gandof, paine, samus** | `firmware-<board>-630*.B` | - Windows PS/2 keyboard fixes |
+| **lulu** | `firmware-lulu-6301.136.B` | - Windows PS/2 keyboard fixes<br>- Thermal limits<br>- KB light PWM default |
+| **yuna** | `firmware-yuna-6301.59.B` | - Windows PS/2 keyboard fixes |
+| **banon, kefka, relm, setzer, wizpig** | `firmware-strago-7287.B` | - Windows PS/2 keyboard fixes<br>- Kefka: tablet mode support |
+| **celes, edgar, reks, terra, ultima** | `firmware-<board>-7287.*.B` | - Windows PS/2 keyboard fixes |
+| **cyan** | `firmware-cyan-7287.57.B` | - Windows PS/2 keyboard fixes<br>- Tablet mode support<br>- Braswell Wi‑Fi power<br>- 8042/keyboard race backports |
+| **asuka, caroline, cave, chell, lars, sentry** | `firmware-glados-7820.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Charge-limit / battery sustainer<br>- Caroline shared-mem floor for Vivaldi |
+| **coral** | `firmware-coral-10068.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Charge-limit / battery sustainer |
+| **reef, pyro, sand, snappy, nasher** | `firmware-reef-9042.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Charge-limit / battery sustainer |
+| **eve** | `firmware-eve-9584.B` | - Vivaldi keyboard support <br>- Charge-limit / battery sustainer |
+| **fizz** | `firmware-fizz-10139.B` | - S0ix / host-sleep alignment<br>- After-G3 power state<br>- Fan RPM defaults + auto fan on resume<br>- PD preserve across RO→RW |
+| **karma** | `firmware-kalista-11343.B` | |
+| **endeavour** | `firmware-endeavour-13259.B-master` | |
+| **atlas** | `firmware-atlas-11827.B` | - Vivaldi keyboard support |
+| **nami** | `firmware-nami-10775.B` | - Vivaldi keyboard support<br>- Charge-limit / battery sustainer<br>- PD sink current limited to 3 A |
+| **nocturne** | `firmware-nocturne-10984.B` | - Charge-limit / battery sustainer<br>- Tablet mode from base attach (VBTN/TBMD) |
+| **nautilus**, **soraka** | `firmware-poppy-10431.B` | - Vivaldi keyboard support (nautilus only)<br>- Charge-limit / battery sustainer |
+| **rammus** | `firmware-rammus-11275.B` | - Vivaldi keyboard support<br>- Charge-limit / battery sustainer<br>- Motion-sensor FIFO 256 (RW RAM budget) |
+| **aleena, careena, grunt, liara, treeya** | `firmware-grunt-11031.B` | - Vivaldi keyboard support |
+| **ampton, bloog, bobba, casta, dood, fleex, foob, garg, lick, meep, phaser, yorp** | `firmware-octopus-11297.B` | - Vivaldi keyboard support |
+| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Vivaldi default keyboard config<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts |
+| **ambassador, dooly, genesis, moonbuggy, puff, scout** | `firmware-puff-13324.B-master` | - Custom fan RPM (puff/dooly)<br>- No TCPC reset on RO→RW |
+| **berknip, dirinboz, ezkinil, gumboz, morphius, shuboz, vilboz, woomax** | `firmware-zork-13434.B-master` | - Vivaldi keyboard support<br>- i8042 self-test status on reset |
+| **awasuki … waddledoo** (dedede set) | `firmware-dedede-13606.B-master` | |
+| **chronicler, collis, copano, delbin, drobit, eldrid, elemi, lindar, voema, volet, voxel** | `firmware-volteer-13672.B-main` | - TBT5 / USB4 alt-mode cable handling<br>- i8042 self-test status on reset |
+| **anahera … xol** (brya set) | `firmware-ec-R136-16238.2.B-main` | - TBT5 / USB4 compatibility<br>- Mithrax KB backlight init on `HOOK_INIT` |
+| **aurash … nova** (brask set) | `firmware-android-brya-14505.885.B-main` | - TBT5 / USB4 compatibility |
+
+### Feature glossary
+
+| Label | Meaning |
+|---|---|
+| Windows PS/2 keyboard fixes | 8042 scanning stays enabled; stable CTR read; systemd-boot-safe disable; Ctrl+Alt+Del; sometimes ACPI query-next-event |
+| Vivaldi keyboard support | Vivaldi top-row matrix + `EC_CMD_GET_KEYBD_CONFIG` backport |
+| Charge-limit / battery sustainer | `EC_CMD_CHARGE_CONTROL` v2, display-SoC thresholds, battery compensate where needed |
+| S0ix / After-G3 | Host sleep alignment, After-G3 state, fan/LED behavior (fizz family) |
+| TBT5 / USB4 compatibility | Thunderbolt 3/4 and USB4 alt-mode / cable handling fixes |
+| Tablet mode | Lid-angle or base-attach driven tablet mode / input gating |
