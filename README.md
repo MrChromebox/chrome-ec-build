@@ -49,8 +49,8 @@ Default output is `chrome-ec/build/<board>/RW/ec.RW.flat` (what coreboot consume
 | Image | Used for |
 |---|---|
 | Xenial (`chrome-ec-xenial:u16`) | link … kabylake, grunt |
-| Focal (`chrome-ec-focal:u20`) | octopus (NPCX), hatch, puff, zork, volteer |
-| coreboot-sdk | octopus/ampton (NDS32), brya, brask |
+| Focal (`chrome-ec-focal:u20`) | octopus (NPCX), hatch, puff, zork, dedede (NPCX), volteer |
+| coreboot-sdk | octopus/ampton + dedede IT83xx (NDS32), brya, brask |
 
 Generations and board lists: `./build-docker.sh --help`.
 

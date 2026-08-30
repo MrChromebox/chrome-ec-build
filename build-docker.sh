@@ -176,6 +176,16 @@ for b in berknip dirinboz ezkinil gumboz morphius shuboz vilboz woomax; do
 	register_board "$b" "$ZORK_BRANCH" zork "$IMAGE_FOCAL"
 done
 
+# --- Dedede (Jasper Lake, 2020–2021) → firmware-dedede-13606.B-master ---------
+# Boards present on the firmware branch and in coreboot google/dedede blobs.
+DEDEDE_BRANCH="firmware-dedede-13606.B-master"
+for b in bugzzy cret madoo magolor metaknight sasuke waddledoo; do
+	register_board "$b" "$DEDEDE_BRANCH" dedede "$IMAGE_FOCAL"
+done
+for b in awasuki beadrix beetley blipper boten boxy dexi dibbi dita drawcia galtic kracko lantis pirika sasukette storo taranza waddledee; do
+	register_board "$b" "$DEDEDE_BRANCH" dedede "$IMAGE_COREBOOT_SDK" nds32
+done
+
 # --- Volteer (Tiger Lake, 2020–2021) → firmware-volteer-13672.B-main ----------
 VOLTEER_BRANCH="firmware-volteer-13672.B-main"
 for b in chronicler collis copano delbin drobit eldrid elemi lindar voema volet voxel; do
@@ -207,13 +217,14 @@ OCTOPUS_BOARDS=(ampton bloog bobba casta dood fleex foob garg lick meep phaser y
 HATCH_BOARDS=(akemi dratini helios jinlon kindred kohaku nightfury)
 PUFF_BOARDS=(ambassador dooly genesis moonbuggy puff scout)
 ZORK_BOARDS=(berknip dirinboz ezkinil gumboz morphius shuboz vilboz woomax)
+DEDEDE_BOARDS=(awasuki beadrix beetley blipper boten boxy bugzzy cret dexi dibbi dita drawcia galtic kracko lantis madoo magolor metaknight pirika sasuke sasukette storo taranza waddledee waddledoo)
 VOLTEER_BOARDS=(chronicler collis copano delbin drobit eldrid elemi lindar voema volet voxel)
 BRYA_BOARDS=(anahera banshee brya crota dochi felwinter gimble kano marasov mithrax omnigul osiris primus redrix taeko taniks vell volmar xol)
 BRASK_BOARDS=(aurash brask bujia constitution gaelin gladios kinox kuldax lisbon moli moxie nova)
 
 usage() {
 	cat <<EOF
-Usage: $0 [--no-sync] [--copy] [--full] <board|link|haswell|baytrail|broadwell|braswell|skylake|apollolake|kabylake|grunt|octopus|hatch|puff|zork|volteer|brya|brask>
+Usage: $0 [--no-sync] [--copy] [--full] <board|link|haswell|baytrail|broadwell|braswell|skylake|apollolake|kabylake|grunt|octopus|hatch|puff|zork|dedede|volteer|brya|brask>
 
   --no-sync   Build at current HEAD (do not checkout firmware branch)
   --copy      Install build/<board>/RW/ec.RW.flat into coreboot blobs
@@ -221,8 +232,8 @@ Usage: $0 [--no-sync] [--copy] [--full] <board|link|haswell|baytrail|broadwell|b
 
 Docker images:
   xenial ($IMAGE_XENIAL)       link, haswell, baytrail, broadwell, braswell, skylake, apollolake, kabylake, grunt
-  focal  ($IMAGE_FOCAL)        octopus (NPCX/ARM), hatch, puff, zork, volteer
-  sdk    ($IMAGE_COREBOOT_SDK) octopus/ampton (IT83xx/NDS32), brya, brask
+  focal  ($IMAGE_FOCAL)        octopus (NPCX/ARM), hatch, puff, zork, dedede (NPCX), volteer
+  sdk    ($IMAGE_COREBOOT_SDK) octopus/ampton + dedede IT83xx (NDS32), brya, brask
 Git ref: local firmware branch
 
 Generations (oldest first):
@@ -239,6 +250,7 @@ Generations (oldest first):
   hatch        ${HATCH_BOARDS[*]}
   puff         ${PUFF_BOARDS[*]}
   zork         ${ZORK_BOARDS[*]}
+  dedede       ${DEDEDE_BOARDS[*]}
   volteer      ${VOLTEER_BOARDS[*]}
   brya         ${BRYA_BOARDS[*]}
   brask        ${BRASK_BOARDS[*]}
@@ -319,6 +331,7 @@ resolve_boards() {
 	hatch)        printf '%s\n' "${HATCH_BOARDS[@]}" ;;
 	puff)         printf '%s\n' "${PUFF_BOARDS[@]}" ;;
 	zork)         printf '%s\n' "${ZORK_BOARDS[@]}" ;;
+	dedede)       printf '%s\n' "${DEDEDE_BOARDS[@]}" ;;
 	volteer)      printf '%s\n' "${VOLTEER_BOARDS[@]}" ;;
 	brya)         printf '%s\n' "${BRYA_BOARDS[@]}" ;;
 	brask)        printf '%s\n' "${BRASK_BOARDS[@]}" ;;
@@ -385,11 +398,11 @@ docker_build_board() {
 
 	case "$toolchain" in
 	nds32)
-		docker_path='export PATH=/opt/xgcc/bin:$PATH'
-		make_cross='CROSS_COMPILE_nds32=nds32le-elf-'
+		docker_path='export PATH=/opt/xgcc/bin:$PATH; export CCACHE_DISABLE=1'
+		make_cross='COREBOOT_SDK_ROOT_nds32=/opt/xgcc CROSS_COMPILE_nds32=/opt/xgcc/bin/nds32le-elf- CROSS_COMPILE=/opt/xgcc/bin/nds32le-elf-'
 		make_host='BUILDCC=gcc BUILDCC_PREFIX='
 		make_warn='COMMON_WARN=-Wall -Wundef -Wno-error -Werror-implicit-function-declaration -Wno-trigraphs -Wno-format-security -Wno-address-of-packed-member -fno-common -fno-strict-aliasing -fno-strict-overflow'
-		objcopy='nds32le-elf-objcopy'
+		objcopy='/opt/xgcc/bin/nds32le-elf-objcopy'
 		;;
 	sdk-arm)
 		docker_path='export PATH=/opt/xgcc/bin:$PATH; export CCACHE_DISABLE=1'
