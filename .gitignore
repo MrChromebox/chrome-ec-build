@@ -1,0 +1,5 @@
+# Nested Chrome EC clone — never commit firmware sources or build output
+/chrome-ec/
+
+# Local build / test artifacts
+*.log
