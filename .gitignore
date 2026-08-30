@@ -1,4 +1,5 @@
-# Nested Chrome EC clone — never commit firmware sources or build output
+# Nested Chrome EC clone (dir or symlink) — never commit firmware sources
+/chrome-ec
 /chrome-ec/
 
 # Local build / test artifacts
