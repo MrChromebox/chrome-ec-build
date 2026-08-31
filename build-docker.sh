@@ -72,7 +72,13 @@ COREBOOT_ROOT="${COREBOOT_ROOT:-$HOME/dev/coreboot}"
 COREBOOT_BLOBS_GOOGLE="$COREBOOT_ROOT/3rdparty/blobs/mainboard/google"
 
 # --- Link (LM4, 2013) --------------------------------------------------------
-register_legacy_board link "firmware-link-2695.B" link
+# Do not build Link with this Docker script. Ubuntu/host gcc-arm-none-eabi and
+# other non-CrOS toolchains produce RW images that boot-loop (brick) on Link.
+# Build only in a Chrome OS chroot with cross-arm-none-eabi gcc-4.9.2-r170
+# (cros_sdk, then: make BOARD=link → build/link/ec.RW.flat).
+LINK_BRANCH="firmware-link-2695.B"
+BOARD_BRANCH[link]="$LINK_BRANCH"
+BOARD_BLOB_PREFIX[link]=link
 
 # --- Haswell (LM4, 2014) -----------------------------------------------------
 FALCO_PEPPY_BRANCH="firmware-falco_peppy-4389.B"
@@ -231,13 +237,15 @@ Usage: $0 [--no-sync] [--copy] [--full] <board|link|haswell|baytrail|broadwell|b
   --full      Build ec.bin (RO + RW) instead of RW-only ec.RW.flat
 
 Docker images:
-  xenial ($IMAGE_XENIAL)       link, haswell, baytrail, broadwell, braswell, skylake, apollolake, kabylake, grunt
+  xenial ($IMAGE_XENIAL)       haswell, baytrail, broadwell, braswell, skylake, apollolake, kabylake, grunt
   focal  ($IMAGE_FOCAL)        octopus (NPCX/ARM), hatch, puff, zork, dedede (NPCX), volteer
   sdk    ($IMAGE_COREBOOT_SDK) octopus/ampton + dedede IT83xx (NDS32), brya, brask
 Git ref: local firmware branch
 
+  link is NOT built here — Chrome OS chroot only (standard toolchains brick Link)
+
 Generations (oldest first):
-  link         ${LINK_BOARDS[*]}
+  link         ${LINK_BOARDS[*]}  (chroot only; this script refuses)
   haswell      ${HASWELL_BOARDS[*]}
   baytrail     ${BAYTRAIL_BOARDS[*]}
   broadwell    ${BROADWELL_BOARDS[*]}
@@ -467,6 +475,23 @@ docker_build_board() {
 build_board() {
 	local board="$1"
 	local branch="${BOARD_BRANCH[$board]}"
+
+	if [[ "$board" == "link" ]]; then
+		cat >&2 <<EOF
+$0: refusing to build link in Docker.
+
+Link EC must be built in a Chrome OS chroot with the CrOS
+cross-arm-none-eabi gcc-4.9.2-r170 toolchain. Images from
+Ubuntu/host gcc-arm-none-eabi (and similar) boot-loop and can
+brick the device.
+
+  cros_sdk
+  cd /path/to/chrome-ec && git checkout $LINK_BRANCH
+  make BOARD=link
+  # install: build/link/ec.RW.flat
+EOF
+		exit 1
+	fi
 
 	if [[ "$DO_SYNC" -eq 1 ]]; then
 		checkout_branch "$branch"

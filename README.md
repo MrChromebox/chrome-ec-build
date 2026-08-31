@@ -48,9 +48,19 @@ Default output is `chrome-ec/build/<board>/RW/ec.RW.flat` (what coreboot consume
 
 | Image | Used for |
 |---|---|
-| Xenial (`chrome-ec-xenial:u16`) | link … kabylake, grunt |
+| Xenial (`chrome-ec-xenial:u16`) | haswell … kabylake, grunt |
 | Focal (`chrome-ec-focal:u20`) | octopus (NPCX), hatch, puff, zork, dedede (NPCX), volteer |
 | coreboot-sdk | octopus/ampton + dedede IT83xx (NDS32), brya, brask |
+
+**Link is not built by Docker.** `./build-docker.sh link` refuses to run. Link (`firmware-link-2695.B`) must be built in a **Chrome OS chroot** with CrOS `cross-arm-none-eabi` **gcc-4.9.2-r170**. Standard toolchains (Ubuntu `gcc-arm-none-eabi`, host Debian packages, etc.) produce RW images that **boot-loop and can brick** the device.
+
+```bash
+cros_sdk
+cd ~/chrome-ec   # or your bind-mounted tree
+git checkout firmware-link-2695.B
+make BOARD=link
+# output: build/link/ec.RW.flat  (ancient layout — not build/link/RW/)
+```
 
 Generations and board lists: `./build-docker.sh --help`.
 
@@ -60,7 +70,7 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 
 | Board(s) | Branch | Features / fixes |
 |---|---|---|
-| **link** | `firmware-link-2695.B` | - Windows PS/2 keyboard fixes<br>- Fan RPM enable fix<br>- vboot_hash backport |
+| **link** | `firmware-link-2695.B` | - Windows PS/2 keyboard fixes<br>- Fan lifecycle / quieter curve / RPM cap<br>- vboot_hash backport<br>- **Chrome OS chroot only** (Docker/standard toolchains brick) |
 | **falco, peppy** | `firmware-falco_peppy-4389.B` | - Windows PS/2 keyboard fixes<br>- ACPI query-next-event mask<br>- Falco quieter fan curve |
 | **wolf** | `firmware-wolf-4389.24.B` | - Windows PS/2 keyboard fixes<br>- ACPI query-next-event mask<br>- Sane fan speeds |
 | **leon** | `firmware-leon-4389.61.B` | - Windows PS/2 keyboard fixes<br>- ACPI query-next-event mask |
