@@ -10,11 +10,13 @@
 # Override with EC_ROOT=/path/to/chrome-ec if needed.
 #
 # Usage:
-#   ./build-docker.sh [--no-sync] [--copy] [--full] <board|...>
+#   ./build-docker.sh [--no-sync] [--copy] [--full] [--keep-going] [--log] \
+#       <board|generation|all> [...]
 #
 # Builds RW firmware (ec.RW.flat) by default — what coreboot consumes.
 # Use --full for ec.bin (RO + RW combined image).
-#
+# Generation "cr50" = Skylake through Brask (CR50 / MrChromebox blob set).
+# Generation "all" = Haswell through Brask (every board this script builds).
 
 set -euo pipefail
 
@@ -217,7 +219,7 @@ BROADWELL_BOARDS=(buddy gandof lulu paine samus yuna)
 BRASWELL_BOARDS=(banon celes cyan edgar kefka reks relm setzer terra ultima wizpig)
 SKYLAKE_BOARDS=(asuka caroline cave chell lars sentry)
 APOLLOLAKE_BOARDS=(coral pyro reef sand snappy)
-KABYLAKE_BOARDS=(atlas endeavour fizz karma nautilus nami nocturne rammus soraka)
+KABYLAKE_BOARDS=(atlas endeavour eve fizz karma nami nautilus nocturne rammus soraka)
 GRUNT_BOARDS=(aleena careena grunt liara treeya)
 OCTOPUS_BOARDS=(ampton bloog bobba casta dood fleex foob garg lick meep phaser yorp)
 HATCH_BOARDS=(akemi dratini helios jinlon kindred kohaku nightfury)
@@ -228,13 +230,45 @@ VOLTEER_BOARDS=(chronicler collis copano delbin drobit eldrid elemi lindar voema
 BRYA_BOARDS=(anahera banshee brya crota dochi felwinter gimble kano marasov mithrax omnigul osiris primus redrix taeko taniks vell volmar xol)
 BRASK_BOARDS=(aurash brask bujia constitution gaelin gladios kinox kuldax lisbon moli moxie nova)
 
+# Skylake+ CR50 boards (generation alias: cr50); MrChromebox coreboot blob set.
+CR50_BOARDS=(
+	"${SKYLAKE_BOARDS[@]}"
+	"${APOLLOLAKE_BOARDS[@]}"
+	"${KABYLAKE_BOARDS[@]}"
+	"${GRUNT_BOARDS[@]}"
+	"${OCTOPUS_BOARDS[@]}"
+	"${HATCH_BOARDS[@]}"
+	"${PUFF_BOARDS[@]}"
+	"${ZORK_BOARDS[@]}"
+	"${DEDEDE_BOARDS[@]}"
+	"${VOLTEER_BOARDS[@]}"
+	"${BRYA_BOARDS[@]}"
+	"${BRASK_BOARDS[@]}"
+)
+
+# Every board this script builds (generation alias: all). Link is omitted (chroot only).
+ALL_GENERATION_BOARDS=(
+	"${HASWELL_BOARDS[@]}"
+	"${BAYTRAIL_BOARDS[@]}"
+	"${BROADWELL_BOARDS[@]}"
+	"${BRASWELL_BOARDS[@]}"
+	"${CR50_BOARDS[@]}"
+)
+
 usage() {
 	cat <<EOF
-Usage: $0 [--no-sync] [--copy] [--full] <board|link|haswell|baytrail|broadwell|braswell|skylake|apollolake|kabylake|grunt|octopus|hatch|puff|zork|dedede|volteer|brya|brask>
+Usage: $0 [--no-sync] [--copy] [--full] [--keep-going] [--log] <board|generation|all> [...]
 
-  --no-sync   Build at current HEAD (do not checkout firmware branch)
-  --copy      Install build/<board>/RW/ec.RW.flat into coreboot blobs
-  --full      Build ec.bin (RO + RW) instead of RW-only ec.RW.flat
+  --no-sync     Build at current HEAD (do not checkout firmware branch)
+  --copy        Install build/<board>/RW/ec.RW.flat into coreboot blobs
+  --full        Build ec.bin (RO + RW) instead of RW-only ec.RW.flat
+  --keep-going  Continue after a board fails; exit 1 at the end if any
+                failed (default: stop on first failure)
+  --log         Tee output to logs/build-YYYYMMDD-HHMMSS.log (or \$LOG_FILE)
+
+  One or more boards and/or generations may be listed, e.g.:
+    $0 --copy dedede brya brask
+    $0 --copy --keep-going --log all
 
 Docker images:
   xenial ($IMAGE_XENIAL)       haswell, baytrail, broadwell, braswell, skylake, apollolake, kabylake, grunt
@@ -262,6 +296,8 @@ Generations (oldest first):
   volteer      ${VOLTEER_BOARDS[*]}
   brya         ${BRYA_BOARDS[*]}
   brask        ${BRASK_BOARDS[*]}
+  cr50         Skylake through Brask / CR50 (${#CR50_BOARDS[@]} boards)
+  all          Haswell through Brask (${#ALL_GENERATION_BOARDS[@]} boards)
 EOF
 }
 
@@ -343,6 +379,8 @@ resolve_boards() {
 	volteer)      printf '%s\n' "${VOLTEER_BOARDS[@]}" ;;
 	brya)         printf '%s\n' "${BRYA_BOARDS[@]}" ;;
 	brask)        printf '%s\n' "${BRASK_BOARDS[@]}" ;;
+	cr50)         printf '%s\n' "${CR50_BOARDS[@]}" ;;
+	all)          printf '%s\n' "${ALL_GENERATION_BOARDS[@]}" ;;
 	*)
 		if board_known "$target"; then
 			echo "$target"
@@ -509,13 +547,17 @@ EOF
 COPY_BLOBS=0
 BUILD_FULL=0
 DO_SYNC=1
-TARGET=""
+KEEP_GOING=0
+DO_LOG=0
+TARGETS=()
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-	--copy)     COPY_BLOBS=1; shift ;;
-	--full)     BUILD_FULL=1; shift ;;
-	--no-sync)  DO_SYNC=0; shift ;;
+	--copy)       COPY_BLOBS=1; shift ;;
+	--full)       BUILD_FULL=1; shift ;;
+	--no-sync)    DO_SYNC=0; shift ;;
+	--keep-going) KEEP_GOING=1; shift ;;
+	--log)        DO_LOG=1; shift ;;
 	-h|--help) usage; exit 0 ;;
 	-*)
 		echo "$0: unknown option: $1" >&2
@@ -523,14 +565,13 @@ while [[ $# -gt 0 ]]; do
 		exit 1
 		;;
 	*)
-		[[ -z "$TARGET" ]] || { usage >&2; exit 1; }
-		TARGET="$1"
+		TARGETS+=("$1")
 		shift
 		;;
 	esac
 done
 
-[[ -n "$TARGET" ]] || { usage >&2; exit 1; }
+[[ ${#TARGETS[@]} -gt 0 ]] || { usage >&2; exit 1; }
 
 if ! command -v docker >/dev/null 2>&1; then
 	echo "$0: docker required" >&2
@@ -543,8 +584,32 @@ if [[ ! -d "$EC_ROOT/.git" ]]; then
 	exit 1
 fi
 
-mapfile -t BOARDS < <(resolve_boards "$TARGET")
+if [[ "$DO_LOG" -eq 1 ]]; then
+	mkdir -p "$SCRIPT_DIR/logs"
+	LOG_FILE="${LOG_FILE:-$SCRIPT_DIR/logs/build-$(date +%Y%m%d-%H%M%S).log}"
+	echo "$0: logging to $LOG_FILE"
+	exec > >(tee -a "$LOG_FILE") 2>&1
+fi
 
-for board in "${BOARDS[@]}"; do
-	build_board "$board"
+BOARDS=()
+for target in "${TARGETS[@]}"; do
+	mapfile -t _resolved < <(resolve_boards "$target")
+	BOARDS+=("${_resolved[@]}")
 done
+
+FAILED_BOARDS=()
+for board in "${BOARDS[@]}"; do
+	if [[ "$KEEP_GOING" -eq 1 ]]; then
+		if ! build_board "$board"; then
+			echo "$0: FAILED board=$board" >&2
+			FAILED_BOARDS+=("$board")
+		fi
+	else
+		build_board "$board"
+	fi
+done
+
+if [[ ${#FAILED_BOARDS[@]} -gt 0 ]]; then
+	echo "$0: ${#FAILED_BOARDS[@]} board(s) failed: ${FAILED_BOARDS[*]}" >&2
+	exit 1
+fi
