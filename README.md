@@ -102,13 +102,13 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 | **rammus** | `firmware-rammus-11275.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Motion-sensor FIFO 256 (RW RAM budget)<br>- Battery static refresh |
 | **aleena, careena, grunt, liara, treeya** | `firmware-grunt-11031.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
 | **ampton, bloog, bobba, casta, dood, fleex, foob, garg, lick, meep, phaser, yorp** | `firmware-octopus-11297.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Vivaldi default keyboard config<br>- Top-row Fn toggle<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts<br>- Battery static refresh |
-| **ambassador, dooly, genesis, moonbuggy, puff, scout** | `firmware-puff-13324.B-master` | - Custom fan RPM (puff/dooly)<br>- No TCPC reset on RO→RW |
+| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Vivaldi default keyboard config<br>- Top-row Fn toggle<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts<br>- Battery static refresh<br>- Infinite host sleep timeout default |
+| **ambassador, dooly, genesis, moonbuggy, puff, scout** | `firmware-puff-13324.B-master` | - Custom fan RPM (puff/dooly)<br>- No TCPC reset on RO→RW<br>- Infinite host sleep timeout default |
 | **berknip, dirinboz, ezkinil, gumboz, morphius, shuboz, vilboz, woomax** | `firmware-zork-13434.B-master` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Woomax: fan table OOB fix |
-| **awasuki … waddledoo** (dedede set) | `firmware-dedede-13606.B-master` | - S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **chronicler, collis, copano, delbin, drobit, eldrid, elemi, lindar, voema, volet, voxel** | `firmware-volteer-13672.B-main` | - TBT5 / USB4 alt-mode cable handling<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh |
-| **anahera … xol** (brya set) | `firmware-ec-R136-16238.2.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Mithrax KB backlight init on `HOOK_INIT`<br>- Primus: fan table OOB fix |
-| **aurash … nova** (brask set) | `firmware-android-brya-14505.885.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle |
+| **awasuki … waddledoo** (dedede set) | `firmware-dedede-13606.B-master` | - S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default |
+| **chronicler, collis, copano, delbin, drobit, eldrid, elemi, lindar, voema, volet, voxel** | `firmware-volteer-13672.B-main` | - TBT5 / USB4 alt-mode cable handling<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Infinite host sleep timeout default |
+| **anahera … xol** (brya set) | `firmware-ec-R136-16238.2.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Mithrax KB backlight init on `HOOK_INIT`<br>- Primus: fan table OOB fix |
+| **aurash … nova** (brask set) | `firmware-android-brya-14505.885.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Infinite host sleep timeout default |
 
 ### Feature glossary
 
@@ -121,5 +121,6 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 | Battery static refresh | Static battery info is staged then published only on success; a transient gauge NAK no longer wipes the last good picture or freezes SoC (fixes crossed-out / 0% blips on Windows and FreeBSD). Battery-equipped Skylake+ (not chromeboxes) |
 | Charge-limit / battery sustainer | `EC_CMD_CHARGE_CONTROL` v2, display-SoC thresholds, battery compensate where needed |
 | S0ix / After-G3 | Host sleep alignment, After-G3 state, fan/LED behavior (fizz family) |
+| Infinite host sleep timeout default | `CONFIG_SLEEP_TIMEOUT_MS` = infinite so host timeout 0 does not arm the EC’s ~10s sleep hang reset (hatch, puff, dedede, volteer, brya, brask) |
 | TBT5 / USB4 compatibility | Thunderbolt 3/4 and USB4 alt-mode / cable handling fixes |
 | Tablet mode | Lid-angle or base-attach driven tablet mode / input gating |
