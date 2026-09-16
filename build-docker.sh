@@ -27,7 +27,7 @@ IMAGE_XENIAL="${EC_IMAGE_XENIAL:-chrome-ec-xenial:u16}"
 IMAGE_FOCAL="${EC_IMAGE_FOCAL:-chrome-ec-focal:u20}"
 IMAGE_COREBOOT_SDK="${EC_IMAGE_COREBOOT_SDK:-coreboot/coreboot-sdk:2024-12-21_306660c2de}"
 
-declare -A BOARD_BRANCH BOARD_BLOB_PREFIX BOARD_IMAGE BOARD_TOOLCHAIN BOARD_LEGACY BOARD_MAKE_EXTRA IMAGE_DOCKERFILE
+declare -A BOARD_BRANCH BOARD_BLOB_PREFIX BOARD_IMAGE BOARD_TOOLCHAIN BOARD_LEGACY BOARD_MAKE_EXTRA BOARD_BLOB_ARTIFACT IMAGE_DOCKERFILE
 
 # Pre-gcc5 trees use CFLAGS_WARN (not COMMON_WARN) and hard-code -Werror.
 BRASWELL_CFLAGS_WARN='CFLAGS_WARN=-Wall -Wundef -Wno-error -Wno-maybe-uninitialized -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow'
@@ -146,6 +146,8 @@ register_board nami "firmware-nami-10775.B" poppy
 register_board nocturne "firmware-nocturne-10984.B" poppy
 register_board atlas "firmware-atlas-11827.B" poppy
 register_board fizz "firmware-fizz-10139.B" fizz
+# Fizz RWSIG: coreboot consumes the signed/extracted RW image, not RW.flat.
+BOARD_BLOB_ARTIFACT[fizz]=ec.RW.bin
 register_board karma "firmware-kalista-11343.B" fizz
 register_board endeavour "firmware-endeavour-13259.B-master" fizz
 register_board rammus "firmware-rammus-11275.B" poppy
@@ -260,8 +262,12 @@ usage() {
 Usage: $0 [--no-sync] [--copy] [--full] [--keep-going] [--log] <board|generation|all> [...]
 
   --no-sync     Build at current HEAD (do not checkout firmware branch)
-  --copy        Install build/<board>/RW/ec.RW.flat into coreboot blobs
+  --copy        Install EC RW image into coreboot blobs (ec.RW.flat by
+                default; fizz uses build/<board>/ec.RW.bin)
   --full        Build ec.bin (RO + RW) instead of RW-only ec.RW.flat
+                (requires futility in the image; uses board/*/dev_key.pem
+                when present for CONFIG_RWSIG signing). Implied by --copy
+                for boards that install ec.RW.bin (fizz).
   --keep-going  Continue after a board fails; exit 1 at the end if any
                 failed (default: stop on first failure)
   --log         Tee output to logs/build-YYYYMMDD-HHMMSS.log (or \$LOG_FILE)
@@ -393,16 +399,32 @@ resolve_boards() {
 	esac
 }
 
+blob_artifact_for_board() {
+	echo "${BOARD_BLOB_ARTIFACT[$1]:-ec.RW.flat}"
+}
+
+# Source path inside the EC build tree for the board's coreboot blob.
+blob_src_for_board() {
+	local board="$1"
+	local artifact
+	artifact="$(blob_artifact_for_board "$board")"
+	case "$artifact" in
+	ec.RW.bin) echo "$EC_ROOT/build/$board/ec.RW.bin" ;;
+	*)         echo "$EC_ROOT/build/$board/RW/ec.RW.flat" ;;
+	esac
+}
+
 blobs_ec_rw_dest() {
 	local board="$1"
-	local existing prefix
+	local artifact existing prefix
 
 	if [[ ! -d "$COREBOOT_BLOBS_GOOGLE" ]]; then
 		echo "$0: COREBOOT_BLOBS_GOOGLE missing: $COREBOOT_BLOBS_GOOGLE" >&2
 		return 1
 	fi
 
-	existing="$(find "$COREBOOT_BLOBS_GOOGLE" -type f -path "*/${board}/ec.RW.flat" 2>/dev/null | head -n 1)"
+	artifact="$(blob_artifact_for_board "$board")"
+	existing="$(find "$COREBOOT_BLOBS_GOOGLE" -type f -path "*/${board}/${artifact}" 2>/dev/null | head -n 1)"
 	if [[ -n "$existing" ]]; then
 		echo "$existing"
 		return 0
@@ -410,17 +432,17 @@ blobs_ec_rw_dest() {
 
 	prefix="${BOARD_BLOB_PREFIX[$board]}"
 	if [[ "$prefix" == "$board" ]]; then
-		echo "$COREBOOT_BLOBS_GOOGLE/$board/ec.RW.flat"
+		echo "$COREBOOT_BLOBS_GOOGLE/$board/$artifact"
 	else
-		echo "$COREBOOT_BLOBS_GOOGLE/$prefix/$board/ec.RW.flat"
+		echo "$COREBOOT_BLOBS_GOOGLE/$prefix/$board/$artifact"
 	fi
 }
 
-copy_ec_rw_flat() {
+copy_ec_rw_blob() {
 	local board="$1"
-	local src="$EC_ROOT/build/$board/RW/ec.RW.flat"
-	local dest
+	local src dest
 
+	src="$(blob_src_for_board "$board")"
 	[[ -f "$src" ]] || { echo "$0: --copy: missing $src" >&2; return 1; }
 	dest="$(blobs_ec_rw_dest "$board")" || return 1
 	mkdir -p "$(dirname "$dest")"
@@ -431,7 +453,7 @@ copy_ec_rw_flat() {
 docker_build_board() {
 	local board="$1"
 	local branch="${BOARD_BRANCH[$board]}"
-	local image target flat toolchain legacy board_extra
+	local image target flat toolchain legacy board_extra pem_arg
 	local make_cross make_host make_warn objcopy docker_path
 	local make_warn_arg='' board_extra_arg='' legacy=0
 
@@ -441,6 +463,14 @@ docker_build_board() {
 	flat="$(flat_output_for_board "$board")"
 	legacy="${BOARD_LEGACY[$board]:-0}"
 	board_extra="${BOARD_MAKE_EXTRA[$board]:-}"
+
+	# RW-only builds skip signing (PEM=). --full / ec.bin needs the board
+	# dev key for CONFIG_RWSIG (futility create / sign --type rwsig).
+	if [[ "$BUILD_FULL" -eq 1 && -f "$EC_ROOT/board/$board/dev_key.pem" ]]; then
+		pem_arg="PEM=board/$board/dev_key.pem"
+	else
+		pem_arg='PEM='
+	fi
 
 	case "$toolchain" in
 	nds32)
@@ -495,12 +525,16 @@ docker_build_board() {
 				make BOARD=$board $make_cross clean
 			fi
 			if [[ $BUILD_FULL -eq 1 ]]; then
-				make -j\"\$(nproc)\" BOARD=$board $make_host $make_cross PEM= $board_extra_arg $make_warn_arg \
+				if ! command -v futility >/dev/null 2>&1; then
+					echo '$0: futility missing in $image (needed for --full / RWSIG)' >&2
+					exit 1
+				fi
+				make -j\"\$(nproc)\" BOARD=$board $make_host $make_cross $pem_arg $board_extra_arg $make_warn_arg \
 					build/$board/RO/ec.RO.elf build/$board/RO/ec.RO.smap \
 					build/$board/RW/ec.RW.elf build/$board/RW/ec.RW.smap
 				flat_from_elf build/$board/RO/ec.RO.elf build/$board/RO/ec.RO.flat
 				flat_from_elf build/$board/RW/ec.RW.elf build/$board/RW/ec.RW.flat
-				make -j\"\$(nproc)\" BOARD=$board $make_host $make_cross PEM= $board_extra_arg $make_warn_arg \
+				make -j\"\$(nproc)\" BOARD=$board $make_host $make_cross $pem_arg $board_extra_arg $make_warn_arg \
 					$target
 			else
 				make -j\"\$(nproc)\" BOARD=$board $make_host $make_cross PEM= $board_extra_arg $make_warn_arg \
@@ -538,7 +572,7 @@ EOF
 	docker_build_board "$board"
 
 	if [[ "$COPY_BLOBS" -eq 1 ]]; then
-		copy_ec_rw_flat "$board"
+		copy_ec_rw_blob "$board"
 	fi
 }
 
@@ -596,6 +630,17 @@ for target in "${TARGETS[@]}"; do
 	mapfile -t _resolved < <(resolve_boards "$target")
 	BOARDS+=("${_resolved[@]}")
 done
+
+# Boards that install ec.RW.bin need a signed full image build.
+if [[ "$COPY_BLOBS" -eq 1 && "$BUILD_FULL" -eq 0 ]]; then
+	for board in "${BOARDS[@]}"; do
+		if [[ "$(blob_artifact_for_board "$board")" == "ec.RW.bin" ]]; then
+			echo "$0: enabling --full (required to produce ec.RW.bin for $board)"
+			BUILD_FULL=1
+			break
+		fi
+	done
+fi
 
 FAILED_BOARDS=()
 for board in "${BOARDS[@]}"; do

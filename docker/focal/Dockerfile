@@ -5,6 +5,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     gcc make git ca-certificates pkg-config \
     libftdi1-dev libusb-1.0-0-dev \
     gcc-arm-none-eabi libnewlib-arm-none-eabi \
+    vboot-kernel-utils \
     python2 \
     && ln -sf python2 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*

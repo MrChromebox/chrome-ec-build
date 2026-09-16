@@ -46,6 +46,7 @@ Optional overrides:
 ```
 
 Default output is `chrome-ec/build/<board>/RW/ec.RW.flat` (what coreboot consumes).
+`--copy` installs that into the coreboot blobs tree; **fizz** installs `build/fizz/ec.RW.bin` instead (and implies `--full`).
 With `--log`, output is also written to `logs/build-*.log` (or `$LOG_FILE`).
 
 ### Docker images
