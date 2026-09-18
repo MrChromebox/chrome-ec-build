@@ -90,25 +90,25 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 | **celes, edgar, reks, terra, ultima** | `firmware-<board>-7287.*.B` | - Windows PS/2 keyboard fixes |
 | **cyan** | `firmware-cyan-7287.57.B` | - Windows PS/2 keyboard fixes<br>- Tablet mode support<br>- Braswell Wi‑Fi power<br>- 8042/keyboard race backports |
 | **asuka, caroline, cave, chell, lars, sentry** | `firmware-glados-7820.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh<br>- Caroline shared-mem floor for Vivaldi<br>- Chell: drop md/rw/mem console cmds (RW flash) |
-| **coral** | `firmware-coral-10068.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
+| **coral** | `firmware-coral-10068.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
 | **reef, pyro, sand, snappy, nasher** | `firmware-reef-9042.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
 | **eve** | `firmware-eve-9584.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
 | **fizz** | `firmware-fizz-10139.B` | - S0ix / host-sleep alignment<br>- After-G3 power state<br>- Fan RPM defaults + auto fan on resume<br>- PD preserve across RO→RW |
 | **karma** | `firmware-kalista-11343.B` | |
 | **endeavour** | `firmware-endeavour-13259.B-master` | |
-| **atlas** | `firmware-atlas-11827.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **nami** | `firmware-nami-10775.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- PD sink current limited to 3 A<br>- Battery static refresh |
-| **nocturne** | `firmware-nocturne-10984.B` | - Charge-limit / battery sustainer<br>- Tablet mode from base attach (VBTN/TBMD)<br>- Battery static refresh |
-| **nautilus**, **soraka** | `firmware-poppy-10431.B` | - Vivaldi keyboard support (nautilus only)<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
-| **rammus** | `firmware-rammus-11275.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Motion-sensor FIFO 256 (RW RAM budget)<br>- Battery static refresh |
-| **aleena, careena, grunt, liara, treeya** | `firmware-grunt-11031.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **ampton, bloog, bobba, casta, dood, fleex, foob, garg, lick, meep, phaser, yorp** | `firmware-octopus-11297.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Vivaldi default keyboard config<br>- Top-row Fn toggle<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts<br>- Battery static refresh<br>- Infinite host sleep timeout default |
+| **atlas** | `firmware-atlas-11827.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
+| **nami** | `firmware-nami-10775.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- PD sink current limited to 3 A<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
+| **nocturne** | `firmware-nocturne-10984.B` | - Charge-limit / battery sustainer<br>- Tablet mode from base attach (VBTN/TBMD)<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
+| **nautilus**, **soraka** | `firmware-poppy-10431.B` | - Vivaldi keyboard support (nautilus only)<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh<br>- Stay off after G3 on AC attach (nautilus only) |
+| **rammus** | `firmware-rammus-11275.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Motion-sensor FIFO 256 (RW RAM budget)<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
+| **aleena, careena, grunt, liara, treeya** | `firmware-grunt-11031.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
+| **ampton, bloog, bobba, casta, dood, fleex, foob, garg, lick, meep, phaser, yorp** | `firmware-octopus-11297.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Stay off after G3 on AC attach |
+| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Vivaldi default keyboard config<br>- Top-row Fn toggle<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Stay off after G3 on AC attach |
 | **ambassador, dooly, genesis, moonbuggy, puff, scout** | `firmware-puff-13324.B-master` | - Custom fan RPM (puff/dooly)<br>- No TCPC reset on RO→RW<br>- Infinite host sleep timeout default |
-| **berknip, dirinboz, ezkinil, gumboz, morphius, shuboz, vilboz, woomax** | `firmware-zork-13434.B-master` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Woomax: fan table OOB fix |
-| **awasuki … waddledoo** (dedede set) | `firmware-dedede-13606.B-master` | - S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default |
-| **chronicler, collis, copano, delbin, drobit, eldrid, elemi, lindar, voema, volet, voxel** | `firmware-volteer-13672.B-main` | - TBT5 / USB4 alt-mode cable handling<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Infinite host sleep timeout default |
-| **anahera … xol** (brya set) | `firmware-ec-R136-16238.2.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Mithrax KB backlight init on `HOOK_INIT`<br>- Primus: fan table OOB fix |
+| **berknip, dirinboz, ezkinil, gumboz, morphius, shuboz, vilboz, woomax** | `firmware-zork-13434.B-master` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Woomax: fan table OOB fix<br>- Stay off after G3 on AC attach |
+| **awasuki … waddledoo** (dedede set) | `firmware-dedede-13606.B-master` | - S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Stay off after G3 on AC attach |
+| **chronicler, collis, copano, delbin, drobit, eldrid, elemi, lindar, voema, volet, voxel** | `firmware-volteer-13672.B-main` | - TBT5 / USB4 alt-mode cable handling<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Stay off after G3 on AC attach |
+| **anahera … xol** (brya set) | `firmware-ec-R136-16238.2.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Mithrax KB backlight init on `HOOK_INIT`<br>- Primus: fan table OOB fix<br>- Stay off after G3 on AC attach |
 | **aurash … nova** (brask set) | `firmware-android-brya-14505.885.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Infinite host sleep timeout default |
 
 ### Feature glossary
@@ -123,5 +123,6 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 | Charge-limit / battery sustainer | `EC_CMD_CHARGE_CONTROL` v2, display-SoC thresholds, battery compensate where needed |
 | S0ix / After-G3 | Host sleep alignment, After-G3 state, fan/LED behavior (fizz family) |
 | Infinite host sleep timeout default | `CONFIG_SLEEP_TIMEOUT_MS` = infinite so host timeout 0 does not arm the EC’s ~10s sleep hang reset (hatch, puff, dedede, volteer, brya, brask) |
+| Stay off after G3 on AC attach | `CONFIG_POWER_BUTTON_INIT_IDLE`: after a graceful shutdown the EC keeps `AP_IDLE` in BBRAM so a charger/hibernate wake does not pulse `PWRBTN#`. Power button and lid-open still boot. Unclean shutdown still auto-boots on AC. |
 | TBT5 / USB4 compatibility | Thunderbolt 3/4 and USB4 alt-mode / cable handling fixes |
 | Tablet mode | Lid-angle or base-attach driven tablet mode / input gating |
