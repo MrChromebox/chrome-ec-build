@@ -186,6 +186,13 @@ for b in berknip dirinboz ezkinil gumboz morphius shuboz vilboz woomax; do
 	register_board "$b" "$ZORK_BRANCH" zork "$IMAGE_FOCAL"
 done
 
+# --- Guybrush (AMD Cezanne, 2021) → firmware-guybrush-14500.B-main -------------
+# NPCX9 builds the host-side util/ecst, so it needs the SDK image (focal has no host libc).
+GUYBRUSH_BRANCH="firmware-guybrush-14500.B-main"
+for b in dewatt nipperkin; do
+	register_board "$b" "$GUYBRUSH_BRANCH" guybrush "$IMAGE_COREBOOT_SDK" sdk-arm
+done
+
 # --- Dedede (Jasper Lake, 2020–2021) → firmware-dedede-13606.B-master ---------
 # Boards present on the firmware branch and in coreboot google/dedede blobs.
 DEDEDE_BRANCH="firmware-dedede-13606.B-master"
@@ -227,6 +234,7 @@ OCTOPUS_BOARDS=(ampton bloog bobba casta dood fleex foob garg lick meep phaser y
 HATCH_BOARDS=(akemi dratini helios jinlon kindred kohaku nightfury)
 PUFF_BOARDS=(ambassador dooly genesis moonbuggy puff scout)
 ZORK_BOARDS=(berknip dirinboz ezkinil gumboz morphius shuboz vilboz woomax)
+GUYBRUSH_BOARDS=(dewatt nipperkin)
 DEDEDE_BOARDS=(awasuki beadrix beetley blipper boten boxy bugzzy cret dexi dibbi dita drawcia galtic kracko lantis madoo magolor metaknight pirika sasuke sasukette storo taranza waddledee waddledoo)
 VOLTEER_BOARDS=(chronicler collis copano delbin drobit eldrid elemi lindar voema volet voxel)
 BRYA_BOARDS=(anahera banshee brya crota dochi felwinter gimble kano marasov mithrax omnigul osiris primus redrix taeko taniks vell volmar xol)
@@ -242,6 +250,7 @@ CR50_BOARDS=(
 	"${HATCH_BOARDS[@]}"
 	"${PUFF_BOARDS[@]}"
 	"${ZORK_BOARDS[@]}"
+	"${GUYBRUSH_BOARDS[@]}"
 	"${DEDEDE_BOARDS[@]}"
 	"${VOLTEER_BOARDS[@]}"
 	"${BRYA_BOARDS[@]}"
@@ -279,7 +288,7 @@ Usage: $0 [--no-sync] [--copy] [--full] [--keep-going] [--log] <board|generation
 Docker images:
   xenial ($IMAGE_XENIAL)       haswell, baytrail, broadwell, braswell, skylake, apollolake, kabylake, grunt
   focal  ($IMAGE_FOCAL)        octopus (NPCX/ARM), hatch, puff, zork, dedede (NPCX), volteer
-  sdk    ($IMAGE_COREBOOT_SDK) octopus/ampton + dedede IT83xx (NDS32), brya, brask
+  sdk    ($IMAGE_COREBOOT_SDK) octopus/ampton + dedede IT83xx (NDS32), guybrush, brya, brask
 Git ref: local firmware branch
 
   link is NOT built here — Chrome OS chroot only (standard toolchains brick Link)
@@ -298,6 +307,7 @@ Generations (oldest first):
   hatch        ${HATCH_BOARDS[*]}
   puff         ${PUFF_BOARDS[*]}
   zork         ${ZORK_BOARDS[*]}
+  guybrush     ${GUYBRUSH_BOARDS[*]}
   dedede       ${DEDEDE_BOARDS[*]}
   volteer      ${VOLTEER_BOARDS[*]}
   brya         ${BRYA_BOARDS[*]}
@@ -381,6 +391,7 @@ resolve_boards() {
 	hatch)        printf '%s\n' "${HATCH_BOARDS[@]}" ;;
 	puff)         printf '%s\n' "${PUFF_BOARDS[@]}" ;;
 	zork)         printf '%s\n' "${ZORK_BOARDS[@]}" ;;
+	guybrush)     printf '%s\n' "${GUYBRUSH_BOARDS[@]}" ;;
 	dedede)       printf '%s\n' "${DEDEDE_BOARDS[@]}" ;;
 	volteer)      printf '%s\n' "${VOLTEER_BOARDS[@]}" ;;
 	brya)         printf '%s\n' "${BRYA_BOARDS[@]}" ;;

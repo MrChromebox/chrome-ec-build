@@ -55,7 +55,7 @@ With `--log`, output is also written to `logs/build-*.log` (or `$LOG_FILE`).
 |---|---|
 | Xenial (`chrome-ec-xenial:u16`) | haswell … kabylake, grunt |
 | Focal (`chrome-ec-focal:u20`) | octopus (NPCX), hatch, puff, zork, dedede (NPCX), volteer |
-| coreboot-sdk | octopus/ampton + dedede IT83xx (NDS32), brya, brask |
+| coreboot-sdk | octopus/ampton + dedede IT83xx (NDS32), guybrush, brya, brask |
 
 **Link is not built by Docker.** `./build-docker.sh link` refuses to run. Link (`firmware-link-2695.B`) must be built in a **Chrome OS chroot** with CrOS `cross-arm-none-eabi` **gcc-4.9.2-r170**. Standard toolchains (Ubuntu `gcc-arm-none-eabi`, host Debian packages, etc.) produce RW images that **boot-loop and can brick** the device.
 
@@ -89,23 +89,24 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 | **banon, kefka, relm, setzer, wizpig** | `firmware-strago-7287.B` | - Windows PS/2 keyboard fixes<br>- Kefka: tablet mode support |
 | **celes, edgar, reks, terra, ultima** | `firmware-<board>-7287.*.B` | - Windows PS/2 keyboard fixes |
 | **cyan** | `firmware-cyan-7287.57.B` | - Windows PS/2 keyboard fixes<br>- Tablet mode support<br>- Braswell Wi‑Fi power<br>- 8042/keyboard race backports |
-| **asuka, caroline, cave, chell, lars, sentry** | `firmware-glados-7820.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh<br>- Caroline shared-mem floor for Vivaldi<br>- Chell: drop md/rw/mem console cmds (RW flash) |
-| **coral** | `firmware-coral-10068.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
-| **reef, pyro, sand, snappy, nasher** | `firmware-reef-9042.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
-| **eve** | `firmware-eve-9584.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
+| **asuka, caroline, cave, chell, lars, sentry** | `firmware-glados-7820.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Battery static refresh<br>- Caroline shared-mem floor for Vivaldi<br>- Chell: drop md/rw/mem console cmds (RW flash) |
+| **coral** | `firmware-coral-10068.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
+| **reef, pyro, sand, snappy, nasher** | `firmware-reef-9042.B` | - Windows PS/2 keyboard fixes<br>- Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
+| **eve** | `firmware-eve-9584.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
 | **fizz** | `firmware-fizz-10139.B` | - S0ix / host-sleep alignment<br>- After-G3 power state<br>- Fan RPM defaults + auto fan on resume<br>- PD preserve across RO→RW |
 | **karma** | `firmware-kalista-11343.B` | |
 | **endeavour** | `firmware-endeavour-13259.B-master` | |
-| **atlas** | `firmware-atlas-11827.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **nami** | `firmware-nami-10775.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- PD sink current limited to 3 A<br>- Battery static refresh |
-| **nocturne** | `firmware-nocturne-10984.B` | - Charge-limit / battery sustainer<br>- Tablet mode from base attach (VBTN/TBMD)<br>- Battery static refresh |
-| **nautilus**, **soraka** | `firmware-poppy-10431.B` | - Vivaldi keyboard support (nautilus only)<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Battery static refresh |
-| **rammus** | `firmware-rammus-11275.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Motion-sensor FIFO 256 (RW RAM budget)<br>- Battery static refresh |
-| **aleena, careena, grunt, liara, treeya** | `firmware-grunt-11031.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **ampton, bloog, bobba, casta, dood, fleex, foob, garg, lick, meep, phaser, yorp** | `firmware-octopus-11297.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Battery static refresh |
-| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Vivaldi default keyboard config<br>- Top-row Fn toggle<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts<br>- Battery static refresh<br>- Infinite host sleep timeout default |
+| **atlas** | `firmware-atlas-11827.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
+| **nami** | `firmware-nami-10775.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- PD sink current limited to 3 A<br>- Battery static refresh |
+| **nocturne** | `firmware-nocturne-10984.B` | - Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Tablet mode from base attach (VBTN/TBMD)<br>- Battery static refresh |
+| **nautilus**, **soraka** | `firmware-poppy-10431.B` | - Vivaldi keyboard support (nautilus only)<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
+| **rammus** | `firmware-rammus-11275.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Motion-sensor FIFO 256 (RW RAM budget)<br>- Battery static refresh |
+| **aleena, careena, grunt, liara, treeya** | `firmware-grunt-11031.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
+| **ampton, bloog, bobba, casta, dood, fleex, foob, garg, lick, meep, phaser, yorp** | `firmware-octopus-11297.B` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit hold at upper limit<br>- Battery static refresh |
+| **akemi, dratini, helios, jinlon, kindred, kohaku, nightfury** | `firmware-hatch-12672.B` | - Charge-limit / battery sustainer<br>- Charge-limit hold at upper limit<br>- Vivaldi default keyboard config<br>- Top-row Fn toggle<br>- bq25710 VSYS PROCHOT<br>- Motionsense FIFO / 8042 ACK reverts<br>- Battery static refresh<br>- Infinite host sleep timeout default |
 | **ambassador, dooly, genesis, moonbuggy, puff, scout** | `firmware-puff-13324.B-master` | - Custom fan RPM (puff/dooly)<br>- No TCPC reset on RO→RW<br>- Infinite host sleep timeout default |
-| **berknip, dirinboz, ezkinil, gumboz, morphius, shuboz, vilboz, woomax** | `firmware-zork-13434.B-master` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Woomax: fan table OOB fix |
+| **berknip, dirinboz, ezkinil, gumboz, morphius, shuboz, vilboz, woomax** | `firmware-zork-13434.B-master` | - Vivaldi keyboard support<br>- Top-row Fn toggle<br>- Charge-limit hold at upper limit<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Woomax: fan table OOB fix |
+| **dewatt, nipperkin** | `firmware-guybrush-14500.B-main` (based on release `v2.0.14212-f975d4f4f5`, not the upstream tip) | - i8042 self-test status on reset<br>- Inverted keyboard interrupts<br>- Charge-limit hold at upper limit |
 | **awasuki … waddledoo** (dedede set) | `firmware-dedede-13606.B-master` | - S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default |
 | **chronicler, collis, copano, delbin, drobit, eldrid, elemi, lindar, voema, volet, voxel** | `firmware-volteer-13672.B-main` | - TBT5 / USB4 alt-mode cable handling<br>- Top-row Fn toggle<br>- i8042 self-test status on reset<br>- Battery static refresh<br>- Infinite host sleep timeout default |
 | **anahera … xol** (brya set) | `firmware-ec-R136-16238.2.B-main` | - TBT5 / USB4 compatibility<br>- S4→G3 soft-off idle<br>- Top-row Fn toggle<br>- Battery static refresh<br>- Infinite host sleep timeout default<br>- Mithrax KB backlight init on `HOOK_INIT`<br>- Primus: fan table OOB fix |
@@ -121,6 +122,8 @@ Local deltas vs the matching `upstream/<branch>` tip on each firmware branch.
 | S4→G3 soft-off idle | Hibernated AP S4 no longer parks forever in `POWER_S4` (~1W drain); after the existing S5 inactivity timeout the EC advances soft-off toward G3 / `CONFIG_HIBERNATE_DELAY_SEC` (Intel `POWER_S4` platforms only: brya, brask, dedede) |
 | Battery static refresh | Static battery info is staged then published only on success; a transient gauge NAK no longer wipes the last good picture or freezes SoC (fixes crossed-out / 0% blips on Windows and FreeBSD). Battery-equipped Skylake+ (not chromeboxes) |
 | Charge-limit / battery sustainer | `EC_CMD_CHARGE_CONTROL` v2, display-SoC thresholds, battery compensate where needed |
+| Inverted keyboard interrupts | NPCX keyboard scan interrupts inverted (upstream guybrush branch, post-release); requires the matching coreboot keyboard IRQ change |
+| Charge-limit hold at upper limit | Sustainer charges to the upper limit, then idles (runs from AC) instead of actively discharging down to the lower limit; DISCHARGE only when above the upper limit |
 | S0ix / After-G3 | Host sleep alignment, After-G3 state, fan/LED behavior (fizz family) |
 | Infinite host sleep timeout default | `CONFIG_SLEEP_TIMEOUT_MS` = infinite so host timeout 0 does not arm the EC’s ~10s sleep hang reset (hatch, puff, dedede, volteer, brya, brask) |
 | TBT5 / USB4 compatibility | Thunderbolt 3/4 and USB4 alt-mode / cable handling fixes |
