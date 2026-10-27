@@ -49,6 +49,18 @@ Default output is `chrome-ec/build/<board>/RW/ec.RW.flat` (what coreboot consume
 `--copy` installs that into the coreboot blobs tree; **fizz** installs `build/fizz/ec.RW.bin` instead (and implies `--full`).
 With `--log`, output is also written to `logs/build-*.log` (or `$LOG_FILE`).
 
+Zephyr boards are a separate builder. `./build-docker.sh` is `make`; screebo and the other rex boards are `zmake`:
+
+```bash
+./build-zephyr.sh screebo
+./build-zephyr.sh --copy rex          # screebo, karis, kanix
+./build-zephyr.sh --branch firmware-rex-15709.B-main screebo
+```
+
+That image is `chrome-ec-zephyr:bookworm` (`docker/zephyr/`), the same SDK and binman setup as the Framework Zephyr EC container. Zephyr and CMSIS are cloned into `deps/<manifest-branch>/` from the ChromiumOS branch that matches the EC branch (`firmware-ec-R136-16238.2.B-main` → `firmware-ec-R136-16238.2.B`). Output is `chrome-ec/build/zephyr/<board>/output/ec.bin` and `ec.RW.flat`.
+
+Screebo, karis, and kanix are built from `firmware-ec-R136-16238.2.B-main` and default the host sleep hang timeout to infinite, same as hatch, puff, dedede, volteer, brya, and brask.
+
 ### Docker images
 
 | Image | Used for |
@@ -56,6 +68,7 @@ With `--log`, output is also written to `logs/build-*.log` (or `$LOG_FILE`).
 | Xenial (`chrome-ec-xenial:u16`) | haswell … kabylake, grunt |
 | Focal (`chrome-ec-focal:u20`) | octopus (NPCX), hatch, puff, zork, dedede (NPCX), volteer |
 | coreboot-sdk | octopus/ampton + dedede IT83xx (NDS32), guybrush, brya, brask |
+| Zephyr (`chrome-ec-zephyr:bookworm`) | zmake boards (screebo, karis, kanix) via `./build-zephyr.sh` |
 
 **Link is not built by Docker.** `./build-docker.sh link` refuses to run. Link (`firmware-link-2695.B`) must be built in a **Chrome OS chroot** with CrOS `cross-arm-none-eabi` **gcc-4.9.2-r170**. Standard toolchains (Ubuntu `gcc-arm-none-eabi`, host Debian packages, etc.) produce RW images that **boot-loop and can brick** the device.
 

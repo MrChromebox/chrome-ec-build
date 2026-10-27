@@ -292,6 +292,7 @@ Docker images:
 Git ref: local firmware branch
 
   link is NOT built here — Chrome OS chroot only (standard toolchains brick Link)
+  Zephyr boards (screebo, karis, kanix) use ./build-zephyr.sh — zmake, not this script.
 
 Generations (oldest first):
   link         ${LINK_BOARDS[*]}  (chroot only; this script refuses)

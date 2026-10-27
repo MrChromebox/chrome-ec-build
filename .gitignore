@@ -2,5 +2,8 @@
 /chrome-ec
 /chrome-ec/
 
+# Zephyr + CMSIS checkouts fetched by build-zephyr.sh
+/deps/
+
 # Local build / test artifacts
 *.log
